@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎁 Sorpresa para ti</title>
+  <meta name="description" content="Una carta de amor con sorpresa" />
+  <style>
+    :root{
+      --bg-start: #ffdde1;   /* rosado suave */
+      --bg-end:   #ee9ca7;   /* rosa coral */
+      --card:     #ffffffee; /* blanco translúcido */
+      --text:     #3b2b2b;
+      --accent:   #d6336c;   /* fucsia */
+      --accent-2: #ff4d6d;   /* rosa vivo */
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji"; color:var(--text)}
+
+    body{
+      background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+      display:grid;place-items:center;
+      overflow-x:hidden;
+    }
+
+    .wrap{width:min(720px, 92vw); padding:32px}
+
+    .card{
+      background:var(--card);
+      backdrop-filter:saturate(1.2) blur(6px);
+      border-radius:24px;
+      padding:28px 24px;
+      box-shadow:0 20px 40px rgba(0,0,0,.12);
+      text-align:center;
+    }
+
+    h1{margin:0 0 8px;font-size: clamp(28px, 4vw, 40px)}
+    p.lead{margin:0 0 20px;opacity:.9}
+
+    .btn{
+      display:inline-flex;align-items:center;gap:10px;
+      font-weight:700;letter-spacing:.3px;
+      border:none;border-radius:999px;
+      padding:14px 22px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color:#fff; cursor:pointer;
+      box-shadow:0 10px 20px rgba(214,51,108,.35);
+      transition: transform .08s ease, box-shadow .2s ease, filter .2s ease;
+    }
+    .btn:hover{transform:translateY(-1px); filter:saturate(1.05); box-shadow:0 14px 24px rgba(214,51,108,.4)}
+    .btn:active{transform:translateY(0)}
+
+    .hint{font-size:14px; opacity:.8; margin-top:10px}
+
+    /* Corazón latente */
+    .big-heart{display:block;margin:10px auto 18px;width:86px; height:86px; color:var(--accent)}
+    .pulse{animation:pulse 1.4s infinite}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+    /* Overlay de la sorpresa */
+    .overlay{
+      position:fixed; inset:0; display:none; place-items:center; z-index:50;
+      background:linear-gradient(135deg, #00000070, #00000060);
+    }
+    .overlay.show{display:grid}
+
+    .modal{
+      width:min(760px, 92vw);
+      max-height:86vh; overflow:auto;
+      background:#fff; border-radius:24px; padding:24px;
+      box-shadow:0 26px 60px rgba(0,0,0,.35);
+      position:relative
+    }
+
+    .close{
+      position:absolute; top:10px; right:10px;
+      border:none; background:#f5f5f5; color:#333;
+      border-radius:12px; padding:8px 12px; cursor:pointer;
+    }
+
+    .title{font-size: clamp(22px,3.6vw,30px); margin:4px 0 2px; text-align:center}
+    .subtitle{font-size:14px; opacity:.8; text-align:center; margin:0 0 14px}
+
+    .letter{
+      background:#fff6f8; border:2px dashed #ffd3dd; border-radius:18px;
+      padding:18px; line-height:1.7; font-size:18px
+    }
+
+    .sig{margin-top:18px; font-style:italic}
+
+    /* Confeti de corazones */
+    .heart{position:fixed; top:-10vh; pointer-events:none; user-select:none; will-change:transform, opacity}
+    @keyframes fall{to{transform:translateY(110vh) rotate(360deg); opacity:0}}
+
+    /* Footer mini */
+    .mini{font-size:12px; opacity:.7; margin-top:16px; text-align:center}
+
+    /* Accesibilidad focus */
+    :focus-visible{outline: 3px solid #00000066; outline-offset:3px}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="card" role="region" aria-label="Tarjeta de regalo">
+      <svg class="big-heart pulse" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+        <path d="M12 21s-7.5-4.35-10-8.7C-0.2 8.34 1.59 4.5 5.2 4.5c2.23 0 3.69 1.33 4.55 2.76C10.93 5.83 12.39 4.5 14.62 4.5c3.61 0 5.4 3.84 3.2 7.8C19.5 16.65 12 21 12 21z"/>
+      </svg>
+      <h1>🎁 Tengo algo para ti</h1>
+      <p class="lead">Un pequeño detalle hecho con mucho cariño. 
+        <br/>Haz clic y descubre tu sorpresa ✨</p>
+      <button class="btn" id="openBtn" aria-haspopup="dialog" aria-controls="overlay">
+        💌 Ver mi sorpresa
+      </button>
+      <div class="hint">Lizyy.</div>
+    </div>
+
+    <p class="mini">Consejo: Amame mucho como yo a ti.</p>
+  </main>
+
+  <!-- Overlay / Modal -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="título" aria-hidden="true">
+    <div class="modal">
+      <button class="close" id="closeBtn" aria-label="Cerrar">✕</button>
+      <h2 class="title" id="título">Para <span id="nombre">ti</span> 💖</h2>
+      <p class="subtitle" id="fecha"></p>
+      <div class="letter" id="letter" aria-live="polite"></div>
+      <p class="sig" id="firma"></p>
+    </div>
+  </div>
+
+  <!-- Audio opcional (agrega un archivo mp3 al mismo folder y cambia src) -->
+  <audio id="song" preload="auto"></audio>
+
+  <script>
+    // ========== CONFIGURACIÓN RÁPIDA ==========
+    // Puedes editar estas 3 constantes para personalizar tu regalo.
+
+    const AUTOR  = "Yesss";                 // firma al final
+    const MENSAJE = `Hoy quería recordarte que me haces feliz.
+Mejoras mis dias y me haces sentir bien.
+Gracias por tu comprension, cariño y por ser tú.
+Esto de las paginas esta impresionante jsksjas, me 
+alegra mucho poder mostrarte mi cariño, amor y a la vez practicar
+espero estar siempre contigo,
+
+Te amo mucho mi vidita. 💞`;
+    const CANCION = "musica.mp3";  // ej: "cancion.mp3" (deja vacío si no quieres música)
+
+    // Opcional: permite usar ?para=Ana en la URL
+    const params = new URLSearchParams(location.search);
+    const PARA = (params.get('para') || '').trim() || 'Ti';
+
+    // ========== LÓGICA ==========
+    const openBtn = document.getElementById('openBtn');
+    const overlay = document.getElementById('overlay');
+    const closeBtn = document.getElementById('closeBtn');
+    const nombreEl = document.getElementById('nombre');
+    const letterEl = document.getElementById('letter');
+    const fechaEl = document.getElementById('fecha');
+    const firmaEl = document.getElementById('firma');
+    const song = document.getElementById('song');
+
+    // Inicializa campos
+    nombreEl.textContent = PARA;
+    fechaEl.textContent = new Intl.DateTimeFormat('es-CO', { dateStyle:'long' }).format(new Date());
+    firmaEl.textContent = `Con amor, ${AUTOR}`;
+    if (CANCION) song.src = CANCION;
+
+    // Efecto máquina de escribir
+    async function typeText(el, text, speed = 25){
+      el.textContent = '';
+      for (const ch of text){
+        el.textContent += ch;
+        await new Promise(r => setTimeout(r, ch === '\n' ? 150 : speed));
+      }
+    }
+
+    // Confeti de corazones
+    function dropHearts(total = 40){
+      const durationMin = 8, durationVar = 6;
+      const sizeMin = 16, sizeVar = 18;
+      for (let i=0;i<total;i++){
+        setTimeout(() => {
+          const span = document.createElement('span');
+          span.className = 'heart';
+          span.textContent = Math.random() < .5 ? '❤' : '💖';
+          span.style.left = (Math.random()*100).toFixed(2) + 'vw';
+          const size = sizeMin + Math.random()*sizeVar;
+          span.style.fontSize = size + 'px';
+          const dur = durationMin + Math.random()*durationVar;
+          span.style.animation = `fall ${dur}s linear forwards`;
+          span.style.animationDelay = (Math.random()*2).toFixed(2) + 's';
+          document.body.appendChild(span);
+          // Limpieza
+          setTimeout(()=> span.remove(), (dur+2)*1000);
+        }, i*90);
+      }
+    }
+
+    function openModal(){
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden','false');
+      closeBtn.focus();
+      if (song && song.src){ song.currentTime = 0; song.play().catch(()=>{}); }
+      dropHearts(50);
+      typeText(letterEl, MENSAJE, 28);
+    }
+
+    function closeModal(){
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden','true');
+      if (song && !song.paused) song.pause();
+      // Quita corazones restantes
+      document.querySelectorAll('.heart').forEach(h => h.remove());
+      openBtn.focus();
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e)=>{ if (e.target === overlay) closeModal(); });
+    window.addEventListener('keydown', (e)=>{ if (e.key === 'Escape' && overlay.classList.contains('show')) closeModal(); });
+  </script>
+</body>
+</html>
